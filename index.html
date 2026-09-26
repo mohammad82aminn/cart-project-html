@@ -72,7 +72,10 @@
                         <span id="nav-badge" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">0</span>
                     </button>
                 </div>
-                <div id="nav-auth" class="flex items-center gap-3">
+                <button onclick="switchPage('reviews')" id="nav-reviews" class="nav-btn hidden px-4 py-2 rounded-xl text-sm font-medium transition-all hover:bg-white/10 relative">
+                        <i class="fas fa-comments mr-2"></i>نظرات
+                    </button>
+                    <div id="nav-auth" class="flex items-center gap-3">
                     <button class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all" onclick="switchPage('cart')">
                         <i class="fas fa-cart-shopping"></i>
                     </button>
@@ -423,6 +426,79 @@
             </div>
         </div>
     </div>
+
+    <!-- Reviews Modal -->
+    <div id="reviews-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="bg-gray-900 rounded-3xl p-6 sm:p-8 max-w-lg w-full mx-4 border border-white/5 animate-scale-in max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold flex items-center gap-2">
+                    <i class="fas fa-comments text-brand-400"></i>
+                    نظرات
+                </h2>
+                <button onclick="closeReviews()" class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="reviews-product-header" class="flex items-center gap-3 mb-6 p-4 bg-gray-800/50 rounded-xl">
+                <div class="w-12 h-12 bg-gray-800 rounded-xl flex items-center justify-center">
+                    <i id="reviews-modal-icon" class="fas fa-box text-gray-600"></i>
+                </div>
+                <div>
+                    <p id="reviews-modal-name" class="font-bold text-sm"></p>
+                    <div class="flex items-center gap-1">
+                        <span id="reviews-modal-stars" class="text-yellow-400"></span>
+                        <span id="reviews-modal-count" class="text-gray-400 text-xs"></span>
+                    </div>
+                </div>
+            </div>
+            <div id="reviews-list" class="space-y-4 mb-6 max-h-60 overflow-y-auto pr-2">
+            </div>
+            <div id="reviews-empty" class="hidden text-center py-8 text-gray-500">
+                <i class="fas fa-comment-slash text-3xl mb-3"></i>
+                <p>هنوز نظری ثبت نشده</p>
+            </div>
+            <div class="border-t border-white/10 pt-6">
+                <h3 class="font-bold mb-4 flex items-center gap-2">
+                    <i class="fas fa-pen-to-square text-brand-400"></i>
+                    نظر شما
+                </h3>
+                <div class="flex items-center gap-1 mb-3" id="rating-input">
+                    <button onclick="setRating(1)" class="rating-star w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center hover:bg-yellow-500/20 transition-all text-gray-600" data-rating="1"><i class="far fa-star"></i></button>
+                    <button onclick="setRating(2)" class="rating-star w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center hover:bg-yellow-500/20 transition-all text-gray-600" data-rating="2"><i class="far fa-star"></i></button>
+                    <button onclick="setRating(3)" class="rating-star w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center hover:bg-yellow-500/20 transition-all text-gray-600" data-rating="3"><i class="far fa-star"></i></button>
+                    <button onclick="setRating(4)" class="rating-star w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center hover:bg-yellow-500/20 transition-all text-gray-600" data-rating="4"><i class="far fa-star"></i></button>
+                    <button onclick="setRating(5)" class="rating-star w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center hover:bg-yellow-500/20 transition-all text-gray-600" data-rating="5"><i class="far fa-star"></i></button>
+                </div>
+                <input type="hidden" id="review-rating" value="0">
+                <input type="text" id="review-name" class="w-full bg-gray-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition-colors mb-3 text-sm" placeholder="نام شما">
+                <textarea id="review-text" rows="3" class="w-full bg-gray-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition-colors mb-3 text-sm" placeholder="نظر خود را بنویسید..."></textarea>
+                <button onclick="submitReview()" class="w-full py-3 bg-gradient-to-r from-brand-500 to-purple-600 text-white font-bold rounded-xl hover:scale-[1.02] transition-transform">
+                    ثبت نظر
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Page -->
+    <main id="page-reviews" class="hidden pt-20 pb-10 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+        <div class="flex items-center gap-3 mb-8">
+            <div class="w-12 h-12 bg-gradient-to-br from-brand-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                <i class="fas fa-comments text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold">نظرات کاربران</h1>
+                <p class="text-gray-400 text-sm">مشاهده و ثبت نظرات محصولات</p>
+            </div>
+        </div>
+        <div class="flex flex-wrap gap-2 mb-6" id="reviews-filter">
+            <button onclick="filterReviews('all')" class="rev-filter active px-4 py-2 rounded-full text-sm font-medium bg-brand-500/20 text-brand-400 border border-brand-500/30 transition-all">همه</button>
+        </div>
+        <div id="reviews-list-page" class="space-y-4"></div>
+        <div id="reviews-page-empty" class="hidden text-center py-20 text-gray-500">
+            <i class="fas fa-comment-slash text-5xl mb-4"></i>
+            <p>هنوز نظری ثبت نشده است</p>
+        </div>
+    </main>
 
     <script src="js/app.js"></script>
 </body>

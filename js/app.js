@@ -21,8 +21,74 @@ let cart = JSON.parse(localStorage.getItem('cart')) || [];
 let currentCategory = 'all';
 let currentPage = 'products';
 let isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+let reviews = JSON.parse(localStorage.getItem('reviews')) || [];
+
+const sampleReviews = [
+    { productId: 1, name: 'علی احمدی', rating: 5, text: 'عالیه، کیفیت خیلی خوبی داره. به طرز خلاقانه بسته‌بندی شده', date: '1404/08/15' },
+    { productId: 1, name: 'مریم رضایی', rating: 4, text: 'جنس خوب، اما کمی کندتر از انتظار رسید', date: '1404/08/10' },
+    { productId: 2, name: 'حسین کریمی', rating: 5, text: 'بهترین لپ‌تاپی که خریدم، سرعت فوق‌العاده‌ست', date: '1404/08/05' },
+    { productId: 3, name: 'زهرا محمدی', rating: 4, text: 'صداش خوبه ولی کمی سنگینه', date: '1404/08/01' },
+    { productId: 5, name: 'سارا نوری', rating: 5, text: 'چینی و شیک، برای راه‌اندازی عالیه', date: '1404/07/28' },
+    { productId: 8, name: 'امیر حسینی', rating: 3, text: 'عمومیه، اما برای قیمتش قابل قبوله', date: '1404/07/25' },
+    { productId: 11, name: 'فاطمه موسوی', rating: 5, text: 'خیلی راحت و سبکه، حتی بلد راه میرم', date: '1404/07/20' },
+    { productId: 12, name: 'رضا افشار', rating: 4, text: 'طراحی شیک و ساده، برای خونه‌ی کوچک عالیه', date: '1404/07/15' },
+];
+
+function initReviews() {
+    const existingCount = reviews.length;
+    if (existingCount === 0) {
+        reviews = [...sampleReviews];
+        localStorage.setItem('reviews', JSON.stringify(reviews));
+    }
+}
+
+function getProductReviews(productId) {
+    return reviews.filter(r => r.productId === productId);
+}
+
+function getAverageRating(productId) {
+    const productReviews = getProductReviews(productId);
+    if (productReviews.length === 0) return null;
+    const sum = productReviews.reduce((s, r) => s + r.rating, 0);
+    return (sum / productReviews.length).toFixed(1);
+}
+
+function getReviewCount(productId) {
+    return getProductReviews(productId).length;
+}
+
+function addReview(productId, name, rating, text) {
+    const review = {
+        productId,
+        name,
+        rating,
+        text,
+        date: new Date().toLocaleDateString('fa-IR')
+    };
+    reviews.push(review);
+    localStorage.setItem('reviews', JSON.stringify(reviews));
+    return review;
+}
+
+function renderStars(rating, size = 'text-sm') {
+    let html = '';
+    const fullStars = Math.floor(rating);
+    const halfStar = rating % 1 >= 0.5;
+    for (let i = 0; i < fullStars; i++) {
+        html += `<i class="fas fa-star text-yellow-400"></i>`;
+    }
+    if (halfStar) {
+        html += `<i class="fas fa-star-half-alt text-yellow-400"></i>`;
+    }
+    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+    for (let i = 0; i < emptyStars; i++) {
+        html += `<i class="far fa-star text-gray-600"></i>`;
+    }
+    return html;
+}
 
 document.addEventListener('DOMContentLoaded', () => {
+    initReviews();
     hideLoader();
     setTimeout(() => {
         checkAuth();
@@ -144,14 +210,18 @@ function renderProducts() {
     const grid = document.getElementById('products-grid');
     const filtered = currentCategory === 'all' ? products : products.filter(p => p.category === currentCategory);
     
-    grid.innerHTML = filtered.map((product, index) => `
+    grid.innerHTML = filtered.map((product, index) => {
+        const avgRating = getAverageRating(product.id);
+        const reviewCount = getReviewCount(product.id);
+        const displayRating = avgRating || product.rating;
+        return `
         <div class="product-card stagger-item bg-gray-900 rounded-3xl overflow-hidden border border-white/5 group" style="animation-delay: ${index * 0.05}s">
-            <div class="relative overflow-hidden img-placeholder h-56 flex items-center justify-center">
+            <div class="relative overflow-hidden img-placeholder h-56 flex items-center justify-center cursor-pointer" onclick="openReviews(${product.id})">
                 <div class="w-32 h-32 bg-white/5 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
                     <i class="fas fa-${getProductIcon(product.image)} text-5xl text-gray-600 group-hover:text-brand-400 transition-colors duration-300"></i>
                 </div>
                 <div class="absolute top-3 right-3 bg-black/50 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full">
-                    <i class="fas fa-star text-yellow-400"></i> ${product.rating}
+                    <i class="fas fa-star text-yellow-400"></i> ${displayRating}
                 </div>
                 <div class="absolute top-3 left-3 bg-brand-500/90 text-white text-xs px-3 py-1 rounded-full">
                     ${product.sold.toLocaleString('fa-IR')} فروش
@@ -159,9 +229,12 @@ function renderProducts() {
                 <div class="absolute bottom-3 left-3 bg-black/70 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full">
                     ${getCategoryLabel(product.category)}
                 </div>
+                <div class="absolute bottom-3 right-3 bg-black/70 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full hover:bg-brand-500/50 transition-colors">
+                    <i class="fas fa-comment-dots mr-1"></i>${reviewCount} نظر
+                </div>
             </div>
             <div class="p-5">
-                <h3 class="font-bold text-base mb-2 line-clamp-2 group-hover:text-brand-400 transition-colors">${product.name}</h3>
+                <h3 class="font-bold text-base mb-2 line-clamp-2 group-hover:text-brand-400 transition-colors cursor-pointer" onclick="openReviews(${product.id})">${product.name}</h3>
                 <div class="flex items-center justify-between">
                     <span class="text-lg font-bold text-brand-400">${product.price.toLocaleString('fa-IR')} تومان</span>
                     <button onclick="addToCart(${product.id}, this)" class="add-to-cart-btn w-10 h-10 bg-gradient-to-br from-brand-500 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
@@ -170,7 +243,8 @@ function renderProducts() {
                 </div>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
 }
 
 function filterCategory(cat, btn) {
