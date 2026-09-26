@@ -399,3 +399,24 @@ input:focus, textarea:focus {
 .number-transition {
     transition: all 0.2s ease;
 }
+
+/* Modal backdrop */
+#logout-modal {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+/* Login input icon styling */
+#login-email, #login-password {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Nav user button pulse */
+@keyframes userPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(217, 70, 239, 0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(217, 70, 239, 0); }
+}
+
+#nav-user-btn:hover {
+    animation: userPulse 1s infinite;
+}

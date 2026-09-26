@@ -20,12 +20,15 @@ const products = [
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 let currentCategory = 'all';
 let currentPage = 'products';
+let isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
 
 document.addEventListener('DOMContentLoaded', () => {
     hideLoader();
-    renderProducts();
-    updateCartBadge();
-    renderCart();
+    setTimeout(() => {
+        checkAuth();
+        renderProducts();
+        updateCartBadge();
+    }, 800);
 });
 
 function hideLoader() {
@@ -37,7 +40,83 @@ function hideLoader() {
     }, 800);
 }
 
+function checkAuth() {
+    if (!isLoggedIn) {
+        document.querySelectorAll('[id^="page-"]').forEach(p => {
+            p.classList.add('hidden');
+            p.classList.remove('animate-fade-in-up');
+        });
+        document.getElementById('page-login').classList.remove('hidden');
+        document.getElementById('page-login').classList.add('animate-fade-in-up');
+        document.getElementById('nav-auth').classList.add('hidden');
+    } else {
+        switchPage('products');
+        updateAuthUI();
+    }
+}
+
+function handleLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value.trim();
+    
+    if (!email || !password) {
+        showToast('لطفاً تمام فیلدها را پر کنید');
+        return;
+    }
+    
+    if (password.length < 4) {
+        showToast('رمز عبور باید حداقل ۴ کاراکتر باشد');
+        return;
+    }
+    
+    isLoggedIn = true;
+    localStorage.setItem('isLoggedIn', 'true');
+    updateAuthUI();
+    switchPage('products');
+    showToast('ورود با موفقیت انجام شد');
+}
+
+function handleLogout() {
+    if (!isLoggedIn) return;
+    document.getElementById('logout-modal').classList.remove('hidden');
+}
+
+function closeLogoutModal() {
+    document.getElementById('logout-modal').classList.add('hidden');
+}
+
+function confirmLogout() {
+    isLoggedIn = false;
+    localStorage.removeItem('isLoggedIn');
+    closeLogoutModal();
+    document.getElementById('nav-auth').classList.add('hidden');
+    document.querySelectorAll('[id^="page-"]').forEach(p => {
+        p.classList.add('hidden');
+        p.classList.remove('animate-fade-in-up');
+    });
+    document.getElementById('page-login').classList.remove('hidden');
+    document.getElementById('page-login').classList.add('animate-fade-in-up');
+    showToast('خروج با موفقیت انجام شد');
+}
+
+function updateAuthUI() {
+    if (isLoggedIn) {
+        document.getElementById('nav-user-btn').classList.add('hidden');
+        document.getElementById('nav-logout-btn').classList.remove('hidden');
+    } else {
+        document.getElementById('nav-user-btn').classList.remove('hidden');
+        document.getElementById('nav-logout-btn').classList.add('hidden');
+    }
+}
+
 function switchPage(page) {
+    const protectedPages = ['cart', 'checkout', 'success'];
+    if (protectedPages.includes(page) && !isLoggedIn) {
+        switchPage('login');
+        showToast('برای ادامه ابتدا وارد شوید');
+        return;
+    }
+    
     document.querySelectorAll('[id^="page-"]').forEach(p => {
         p.classList.add('hidden');
         p.classList.remove('animate-fade-in-up');
