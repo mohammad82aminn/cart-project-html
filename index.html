@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سبد خرید مدرن</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { vazir: ['Vazirmatn', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            50: '#fdf4ff',
+                            100: '#fae8ff',
+                            200: '#f5d0fe',
+                            300: '#f0abfc',
+                            400: '#e879f9',
+                            500: '#d946ef',
+                            600: '#c026d3',
+                            700: '#a21cab',
+                            800: '#86198f',
+                            900: '#701a75',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-vazir bg-gray-950 text-white min-h-screen">
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-[100] hidden">
+        <div class="bg-emerald-500 text-white px-6 py-3 rounded-2xl shadow-2xl font-medium flex items-center gap-2 animate-bounce-in">
+            <i class="fas fa-check-circle"></i>
+            <span id="toast-msg">افزوده به سبد خرید</span>
+        </div>
+    </div>
+
+    <!-- Loading Skeleton -->
+    <div id="loader" class="fixed inset-0 bg-gray-950 z-50 flex items-center justify-center">
+        <div class="text-center">
+            <div class="relative w-20 h-20 mx-auto mb-4">
+                <div class="absolute inset-0 border-4 border-brand-500/30 rounded-full"></div>
+                <div class="absolute inset-0 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <p class="text-brand-400 font-medium text-sm">در حال بارگذاری...</p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-40 bg-gray-950/80 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2 cursor-pointer" onclick="switchPage('products')">
+                    <div class="w-10 h-10 bg-gradient-to-br from-brand-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/30">
+                        <i class="fas fa-bag-shopping text-white"></i>
+                    </div>
+                    <span class="text-xl font-bold bg-gradient-to-r from-brand-400 to-purple-400 bg-clip-text text-transparent">مهربان</span>
+                </div>
+                <div class="hidden md:flex items-center gap-1">
+                    <button onclick="switchPage('products')" id="nav-products" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium transition-all hover:bg-white/10">
+                        <i class="fas fa-store mr-2"></i>محصولات
+                    </button>
+                    <button onclick="switchPage('cart')" id="nav-cart" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium transition-all hover:bg-white/10 relative">
+                        <i class="fas fa-cart-shopping mr-2"></i>سبد خرید
+                        <span id="nav-badge" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">0</span>
+                    </button>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all" onclick="switchPage('cart')">
+                        <i class="fas fa-cart-shopping"></i>
+                    </button>
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Products Page -->
+    <main id="page-products" class="pt-20 pb-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <!-- Hero -->
+        <section class="relative overflow-hidden rounded-3xl mb-12 hero-gradient p-8 sm:p-12">
+            <div class="absolute inset-0 opacity-20">
+                <div class="absolute top-10 left-10 w-64 h-64 bg-white rounded-full blur-3xl"></div>
+                <div class="absolute bottom-10 right-10 w-48 h-48 bg-brand-300 rounded-full blur-3xl"></div>
+            </div>
+            <div class="relative z-10">
+                <h1 class="text-3xl sm:text-5xl font-extrabold mb-4 leading-tight">خرید آسان و سریع</h1>
+                <p class="text-brand-100 text-lg sm:text-xl mb-8 max-w-lg">محبوب‌ترین محصولات را با بهترین قیمت‌ها و ارسال رایگان بخرید</p>
+                <div class="flex flex-wrap gap-4">
+                    <button onclick="switchPage('products')" class="px-8 py-3 bg-white text-brand-700 font-bold rounded-xl hover:scale-105 transition-transform shadow-xl">
+                        همین الان خرید کن
+                    </button>
+                    <button class="px-8 py-3 bg-white/10 backdrop-blur text-white font-medium rounded-xl border border-white/20 hover:bg-white/20 transition-all">
+                        مشاهده محصولات
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Category Filter -->
+        <div class="flex flex-wrap gap-2 mb-8" id="category-filters">
+<button onclick="filterCategory('all', this)" class="cat-btn active px-5 py-2 rounded-full text-sm font-medium bg-white/10 text-white border border-white/20 transition-all">همه</button>
+                    <button onclick="filterCategory('electronics', this)" class="cat-btn px-5 py-2 rounded-full text-sm font-medium bg-white/5 text-gray-300 border border-white/10 transition-all hover:bg-white/10">الکترونیک</button>
+                    <button onclick="filterCategory('clothing', this)" class="cat-btn px-5 py-2 rounded-full text-sm font-medium bg-white/5 text-gray-300 border border-white/10 transition-all hover:bg-white/10">پوشاک</button>
+                    <button onclick="filterCategory('accessories', this)" class="cat-btn px-5 py-2 rounded-full text-sm font-medium bg-white/5 text-gray-300 border border-white/10 transition-all hover:bg-white/10">اکسسوری</button>
+                    <button onclick="filterCategory('home', this)" class="cat-btn px-5 py-2 rounded-full text-sm font-medium bg-white/5 text-gray-300 border border-white/10 transition-all hover:bg-white/10">خانه</button>
+        </div>
+
+        <!-- Products Grid -->
+        <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        </div>
+    </main>
+
+    <!-- Cart Page -->
+    <main id="page-cart" class="hidden pt-20 pb-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div class="flex items-center gap-3 mb-8">
+            <div class="w-12 h-12 bg-gradient-to-br from-brand-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                <i class="fas fa-cart-shopping text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold">سبد خرید</h1>
+                <p class="text-gray-400 text-sm" id="cart-count-text">0 محصول</p>
+            </div>
+        </div>
+
+        <div id="cart-empty" class="hidden text-center py-20">
+            <div class="w-24 h-24 mx-auto mb-6 bg-gray-900 rounded-3xl flex items-center justify-center">
+                <i class="fas fa-cart-shopping text-4xl text-gray-600"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2">سبد خرید خالی است</h3>
+            <p class="text-gray-400 mb-6">محصولی به سبد خرید شما اضافه نشده است</p>
+            <button onclick="switchPage('products')" class="px-8 py-3 bg-gradient-to-r from-brand-500 to-purple-600 text-white font-bold rounded-xl hover:scale-105 transition-transform shadow-lg shadow-brand-500/30">
+                برو به محصولات
+            </button>
+        </div>
+
+        <div id="cart-content" class="hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Cart Items -->
+                <div class="lg:col-span-2 space-y-4" id="cart-items">
+                </div>
+
+                <!-- Order Summary -->
+                <div class="lg:col-span-1">
+                    <div class="bg-gray-900 rounded-3xl p-6 border border-white/5 sticky top-24">
+                        <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+                            <i class="fas fa-receipt text-brand-400"></i>
+                            خلاصه سفارش
+                        </h2>
+                        <div class="space-y-3 mb-6">
+                            <div class="flex justify-between text-gray-400">
+                                <span>زیرمجموعه</span>
+                                <span id="summary-subtotal">0 تومان</span>
+                            </div>
+                            <div class="flex justify-between text-gray-400">
+                                <span>ارسال</span>
+                                <span id="summary-shipping" class="text-emerald-400">رایگان</span>
+                            </div>
+                            <div class="flex justify-between text-gray-400">
+                                <span>تخفیف</span>
+                                <span id="summary-discount" class="text-emerald-400">0 تومان</span>
+                            </div>
+                            <div class="border-t border-white/10 pt-3"></div>
+                            <div class="flex justify-between font-bold text-lg">
+                                <span>مجموع</span>
+                                <span id="summary-total" class="text-brand-400">0 تومان</span>
+                            </div>
+                        </div>
+                        <button onclick="switchPage('checkout')" id="checkout-btn" class="w-full py-4 bg-gradient-to-r from-brand-500 to-purple-600 text-white font-bold rounded-xl hover:scale-[1.02] transition-transform shadow-lg shadow-brand-500/30 disabled:opacity-50 disabled:cursor-not-allowed">
+                            ادامه به پرداخت
+                        </button>
+                        <p class="text-center text-xs text-gray-500 mt-3"><i class="fas fa-shield-halved mr-1"></i>پرداخت امن و مطمئن</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Checkout Page -->
+    <main id="page-checkout" class="hidden pt-20 pb-10 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
+        <div class="flex items-center gap-3 mb-8">
+            <div class="w-12 h-12 bg-gradient-to-br from-brand-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                <i class="fas fa-credit-card text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold">ثبت سفارش</h1>
+                <p class="text-gray-400 text-sm">اطلاعات خود را وارد کنید</p>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <!-- Order Items Summary -->
+            <div class="bg-gray-900 rounded-3xl p-6 border border-white/5">
+                <h3 class="font-bold mb-4 flex items-center gap-2">
+                    <i class="fas fa-box-open text-brand-400"></i>
+                    محصولات سفارش
+                </h3>
+                <div id="checkout-items" class="space-y-3"></div>
+            </div>
+
+            <!-- Customer Info -->
+            <div class="bg-gray-900 rounded-3xl p-6 border border-white/5">
+                <h3 class="font-bold mb-4 flex items-center gap-2">
+                    <i class="fas fa-user text-brand-400"></i>
+                    اطلاعات شخصی
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">نام و نام خانوادگی</label>
+                        <input id="customer-name" type="text" class="w-full bg-gray-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition-colors" placeholder="مثلاً علی احمدی">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">شماره موبایل</label>
+                        <input id="customer-phone" type="tel" class="w-full bg-gray-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition-colors" placeholder="0912...">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">ایمیل</label>
+                        <input id="customer-email" type="email" class="w-full bg-gray-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition-colors" placeholder="example@mail.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">کد پستی</label>
+                        <input id="customer-postal" type="text" class="w-full bg-gray-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition-colors" placeholder="۱۲۳۴۵۶۷۸۹۰">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="block text-sm text-gray-400 mb-2">آدرس</label>
+                    <textarea id="customer-address" rows="3" class="w-full bg-gray-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition-colors" placeholder="آدرس کامل محل تحویل"></textarea>
+                </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="bg-gray-900 rounded-3xl p-6 border border-white/5">
+                <h3 class="font-bold mb-4 flex items-center gap-2">
+                    <i class="fas fa-wallet text-brand-400"></i>
+                    روش پرداخت
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label class="payment-method cursor-pointer">
+                        <input type="radio" name="payment" value="card" checked class="hidden peer">
+                        <div class="peer-checked:border-brand-500 peer-checked:bg-brand-500/10 p-4 rounded-xl border border-white/10 bg-gray-800/50 text-center hover:border-brand-500/50 transition-all">
+                            <i class="fas fa-credit-card text-2xl mb-2 text-brand-400"></i>
+                            <p class="text-sm font-medium">کارت بانکی</p>
+                        </div>
+                    </label>
+                    <label class="payment-method cursor-pointer">
+                        <input type="radio" name="payment" value="wallet" class="hidden peer">
+                        <div class="peer-checked:border-brand-500 peer-checked:bg-brand-500/10 p-4 rounded-xl border border-white/10 bg-gray-800/50 text-center hover:border-brand-500/50 transition-all">
+                            <i class="fas fa-mobile-screen text-2xl mb-2 text-emerald-400"></i>
+                            <p class="text-sm font-medium">پرداخت آنلاین</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <button onclick="placeOrder()" id="place-order-btn" class="w-full py-4 bg-gradient-to-r from-brand-500 to-purple-600 text-white font-bold rounded-xl hover:scale-[1.02] transition-transform shadow-lg shadow-brand-500/30 text-lg">
+                ثبت سفارش <i class="fas fa-check ml-2"></i>
+            </button>
+        </div>
+    </main>
+
+    <!-- Order Success Page -->
+    <main id="page-success" class="hidden pt-20 pb-10 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
+        <div class="text-center py-12">
+            <div class="relative inline-block mb-8">
+                <div class="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto">
+                    <i class="fas fa-check text-4xl text-emerald-400"></i>
+                </div>
+                <div class="absolute inset-0 w-24 h-24 bg-emerald-500/20 rounded-full animate-ping"></div>
+            </div>
+            <h1 class="text-3xl font-bold mb-3">سفارش شما با موفقیت ثبت شد</h1>
+            <p class="text-gray-400 mb-2">از خرید شما سپاسگزاریم</p>
+            <div class="bg-gray-900 rounded-2xl p-6 mb-8 max-w-md mx-auto border border-white/5">
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div class="text-gray-400">شماره سفارش</div>
+                    <div class="font-bold text-brand-400" id="order-id">#ORD-000001</div>
+                    <div class="text-gray-400">تاریخ</div>
+                    <div class="font-bold" id="order-date"></div>
+                    <div class="text-gray-400">مبلغ کل</div>
+                    <div class="font-bold text-emerald-400" id="order-total"></div>
+                </div>
+            </div>
+            <p class="text-gray-500 text-sm mb-8">سفارش شما به زودی بررسی و ارسال خواهد شد</p>
+            <button onclick="switchPage('products')" class="px-8 py-3 bg-gradient-to-r from-brand-500 to-purple-600 text-white font-bold rounded-xl hover:scale-105 transition-transform shadow-lg shadow-brand-500/30">
+                بازگشت به محصولات
+            </button>
+        </div>
+    </main>
+
+    <!-- Mobile Cart FAB -->
+    <button onclick="switchPage('cart')" class="fixed bottom-6 left-6 w-16 h-16 bg-gradient-to-br from-brand-500 to-purple-600 rounded-2xl shadow-2xl shadow-brand-500/30 flex items-center justify-center z-30 md:hidden hover:scale-110 transition-transform">
+        <i class="fas fa-cart-shopping text-white text-xl"></i>
+        <span id="fab-badge" class="hidden absolute -top-1 -right-1 w-6 h-6 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">0</span>
+    </button>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 mt-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 bg-gradient-to-br from-brand-500 to-purple-600 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-bag-shopping text-white text-sm"></i>
+                        </div>
+                        <span class="text-lg font-bold bg-gradient-to-r from-brand-400 to-purple-400 bg-clip-text text-transparent">مهربان</span>
+                    </div>
+                    <p class="text-gray-500 text-sm">خرید آسان و سریع با بهترین قیمت‌ها</p>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4 text-sm">محصولات</h4>
+                    <div class="space-y-2 text-gray-500 text-sm">
+                        <p>الکترونیک</p>
+                        <p>پوشاک</p>
+                        <p>اکسسوری</p>
+                        <p>خانه و آشپزخانه</p>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4 text-sm">خدمات</h4>
+                    <div class="space-y-2 text-gray-500 text-sm">
+                        <p>ارسال رایگان</p>
+                        <p>ضمانت بازگشت</p>
+                        <p>پرداخت آنلاین</p>
+                        <p>پشتیبانی ۲۴ ساعته</p>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4 text-sm">ما را دنبال کنید</h4>
+                    <div class="flex gap-3">
+                        <a href="#" class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center hover:bg-white/10 transition-all"><i class="fab fa-instagram text-gray-400"></i></a>
+                        <a href="#" class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center hover:bg-white/10 transition-all"><i class="fab fa-twitter text-gray-400"></i></a>
+                        <a href="#" class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center hover:bg-white/10 transition-all"><i class="fab fa-whatsapp text-gray-400"></i></a>
+                        <a href="#" class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center hover:bg-white/10 transition-all"><i class="fab fa-telegram text-gray-400"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-white/5 pt-8 text-center text-gray-600 text-sm">
+                &copy; ۱۴۰۴ مهربان - همه حقوق محفوظ است
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
